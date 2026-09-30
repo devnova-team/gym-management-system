@@ -13,12 +13,28 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+
+
+           $table->foreignId('gym_id')
+            ->constrained('gyms')
+            ->restrictOnDelete();
+               
+
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('phone')->unique();
+            $table->string('email')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            $table->enum('role', [
+        'owner',
+        'receptionist',
+        'trainer',
+    ]);
+
             $table->rememberToken();
             $table->timestamps();
+             
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -42,8 +58,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+    Schema::dropIfExists('password_reset_tokens');
+    Schema::dropIfExists('users');
     }
 };
