@@ -10,11 +10,19 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-            'phone' => ['required', 'string'],
+        $validated = $request->validate([
+
+        'email' => ['nullable', 'email', 'required_without:phone'],
+        'phone' => ['nullable', 'string', 'required_without:email'],
+        'password' => ['required', 'string'],
         ]);
+
+         $field = !empty($validated['email']) ? 'email' : 'phone';
+
+        $credentials = [
+            $field => $validated[$field],
+            'password' => $validated['password'],
+        ];
 
         if (! $token = Auth::guard('api')->attempt($credentials)) {
             return response()->json([
