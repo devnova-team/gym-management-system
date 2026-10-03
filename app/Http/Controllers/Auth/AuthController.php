@@ -2,66 +2,109 @@
 
 namespace App\Http\Controllers\Auth;
 
+
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Resources\Auth\LoginResource;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function __construct(
+        private AuthService $authService
+    ) {}
+
+    public function login(LoginRequest $request)
     {
-        $validated = $request->validate([
+        $loginData = $this->authService->login(
+            $request->validated()
+        );
 
-        'email' => ['nullable', 'email', 'required_without:phone'],
-        'phone' => ['nullable', 'string', 'required_without:email'],
-        'password' => ['required', 'string'],
-        ]);
-
-         $field = !empty($validated['email']) ? 'email' : 'phone';
-
-        $credentials = [
-            $field => $validated[$field],
-            'password' => $validated['password'],
-        ];
-
-        if (! $token = Auth::guard('api')->attempt($credentials)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials.',
-            ], 401);
+        if ($loginData === null) {
+            return ApiResponse::unauthorized(
+                'Invalid credentials.'
+            );
         }
 
-        return $this->respondWithToken($token);
+        $response = ApiResponse::success(
+    (new LoginResource($loginData))->resolve($request),
+    'Login successful.'
+);
+
+return $response->withCookie(
+    cookie(
+        'refresh_token',
+        $loginData['refresh_token'],
+        14 * 24 * 60,
+        '/',
+        null,
+        app()->environment('production'),
+        true,
+        false,
+        'lax'
+    )
+);
     }
 
-    protected function respondWithToken($token)
-    {
-        return response()->json([
-            'success' => true,
-            'message' => 'Login successful.',
-            'data' => [
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
-            ],
-        ]);
-    }
+ 
 
-    
-    public function logout()
-    {
-        Auth::guard('api')->logout();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Successfully logged out.',
-        ]);
-    }
+    public function logout(Request $request)
+{
+    $this->authService->logout(
+        $request->cookie('refresh_token')
+    );
 
-    public function refresh()
-    {
-        $token = Auth::guard('api')->refresh();
+    $response = ApiResponse::success(
+        null,
+        'Logout successful.'
+    );
 
-        return $this->respondWithToken($token);
-    }
+    return $response->withCookie(
+        cookie(
+            'refresh_token',
+            '',
+            -1,
+            '/',
+            null,
+            app()->environment('production'),
+            true,
+            false,
+            'lax'
+        )
+    );
+}
+
+    public function refresh(Request $request)
+{
+    $refreshData = $this->authService->refresh(
+        $request->cookie('refresh_token')
+    );
+
+    $response = ApiResponse::success(
+    [
+        'access_token' => $refreshData['access_token'],
+        'token_type' => $refreshData['token_type'],
+        'expires_in' => $refreshData['expires_in'],
+    ],
+    'Token refreshed successfully.'
+);
+
+return $response->withCookie(
+    cookie(
+        'refresh_token',
+        $refreshData['refresh_token'],
+        14 * 24 * 60,
+        '/',
+        null,
+        app()->environment('production'),
+        true,
+        false,
+        'lax'
+    )
+);
+}
 }
