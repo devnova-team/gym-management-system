@@ -18,8 +18,18 @@ class UpdateRequest extends FormRequest
             'name' => 'sometimes|string|max:255',
             'phone' => 'sometimes|string|max:11',
             'email' => 'nullable|email|max:255',
-            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png'],
+            'photo_url' => ['nullable', 'image', 'mimes:jpg,jpeg,png'],
             'join_date' => 'sometimes|date',
         ];
+    }
+
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if (count($this->validated()) === 0) {
+                $validator->errors()->add('member', 'At least one field is required.');
+            }
+        });
     }
 }

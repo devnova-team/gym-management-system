@@ -18,7 +18,7 @@ class StoreRequest extends FormRequest
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:11',
             'email' => 'nullable|email|max:255',
-            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png'],
+            'photo_url' => ['nullable', 'image', 'mimes:jpg,jpeg,png'],
             'join_date' => 'required|date',
         ];
     }

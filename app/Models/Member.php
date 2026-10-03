@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Gym;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -19,4 +21,11 @@ class Member extends Model
         'photo_url',
         'join_date',
     ];
+
+
+
+    public function gym()
+    {
+        return $this->belongsTo(Gym::class);
+    }
 }
