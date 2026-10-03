@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('gyms', function (Blueprint $table) {
             $table->id();
 
-             $table->string('name');
+            $table->string('name');
             $table->string('phone');
             $table->string('subscription_tier')->nullable();  //String for now until subscription tiers are finalized
 
