@@ -14,25 +14,25 @@ return new class extends Migration
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
 
-               $table->foreignId('gym_id')
-                  ->constrained('gyms')
-                  ->restrictOnDelete();
+            $table->foreignId('gym_id')
+                ->constrained('gyms')
+                ->restrictOnDelete();
 
-             $table->string('name');
+            $table->string('name');
 
-          $table->enum('type', [
-        'daily',
-        '3x_week',
-        '2x_week',
-    ]);
+            $table->enum('type', [
+                'daily',
+                '3x_week',
+                '2x_week',
+            ]);
 
 
-    $table->unsignedInteger('duration_days');
+            $table->unsignedInteger('duration_days');
 
-    $table->decimal('price', 10, 2);
+            $table->decimal('price', 10, 2);
 
-    $table->unsignedInteger('absence_threshold_days');
-    
+            $table->unsignedInteger('absence_threshold_days');
+
             $table->timestamps();
         });
     }
