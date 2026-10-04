@@ -1,11 +1,17 @@
 <?php
 
+
+use App\Helpers\ApiResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Exceptions\Handler;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
-use Throwable;
+use Illuminate\Validation\ValidationException;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenBlacklistedException;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
+use RuntimeException;
+
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,8 +24,75 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (Throwable $e, Request $request) {
-            $handler = new Handler();
-            return $handler->render($request, $e);
+
+        // Validation errors
+        $exceptions->render(function (
+            ValidationException $e,
+            Request $request
+        ) {
+            if ($request->is('api/*')) {
+                return ApiResponse::validationError(
+                    $e->errors()
+                );
+            }
         });
-    })->create();
+
+        // Rate limit errors
+        $exceptions->render(function (
+            ThrottleRequestsException $e,
+            Request $request
+        ) {
+            if ($request->is('api/*')) {
+                $retryAfter = (int) ($e->getHeaders()['Retry-After'] ?? 60);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Too many login attempts. Please try again later.',
+                    'retry_after' => $retryAfter,
+                ], 429);
+            }
+        });
+
+        // JWT blacklisted token
+        $exceptions->render(function (
+            TokenBlacklistedException $e,
+            Request $request
+        ) {
+            if ($request->is('api/*')) {
+                return ApiResponse::unauthorized(
+                    'Token has been blacklisted.'
+                );
+            }
+        });
+
+        // JWT errors
+        $exceptions->render(function (
+            JWTException $e,
+            Request $request
+        ) {
+            if ($request->is('api/*')) {
+                return ApiResponse::unauthorized(
+                    'Invalid token.'
+                );
+            }
+        });
+
+        $exceptions->render(function (
+            RuntimeException $e,
+            Request $request
+        ) {
+            if (
+                $request->is('api/*') &&
+                in_array($e->getMessage(), [
+                    'Refresh token is missing.',
+                    'Invalid or expired refresh token.',
+                ])
+            ) {
+                return ApiResponse::unauthorized(
+                    $e->getMessage()
+                );
+            }
+        });
+    })
+
+    ->create();

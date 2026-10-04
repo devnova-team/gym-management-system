@@ -2,56 +2,109 @@
 
 namespace App\Http\Controllers\Auth;
 
+
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Resources\Auth\LoginResource;
+use App\Services\AuthService;
+use Illuminate\Http\Request;
+
 
 class AuthController extends Controller
 {
-    public function login(LoginRequest $request){
+    public function __construct(
+        private AuthService $authService
+    ) {}
 
-        $user = User::where('email', $request['email'])->first();
+    public function login(LoginRequest $request)
+    {
+        $loginData = $this->authService->login(
+            $request->validated()
+        );
 
-        if (!$user || !Hash::check($request['password'], $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials.',
-                'data' => null,
-            ], 401);
+        if ($loginData === null) {
+            return ApiResponse::unauthorized(
+                'Invalid credentials.'
+            );
         }
 
-         $token = $user->createToken('auth_token')->plainTextToken;
+        $response = ApiResponse::success(
+    (new LoginResource($loginData))->resolve($request),
+    'Login successful.'
+);
 
-            return response()
-            ->json([
-                'success' => true,
-                'message' => 'Login successful.',
-                'data' => [
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'role' => $user->role,
-                        'gym_id' => $user->gym_id,
-                    ],
-                ],
-            ]);
-
+return $response->withCookie(
+    cookie(
+        'refresh_token',
+        $loginData['refresh_token'],
+        14 * 24 * 60,
+        '/',
+        null,
+        app()->environment('production'),
+        true,
+        false,
+        'lax'
+    )
+);
     }
 
-    public function logout(Request $request){
+ 
 
 
-     $request->user()->currentAccessToken()->delete();
+    public function logout(Request $request)
+{
+    $this->authService->logout(
+        $request->cookie('refresh_token')
+    );
 
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Logged out '
-    ]);
-    }
+    $response = ApiResponse::success(
+        null,
+        'Logout successful.'
+    );
+
+    return $response->withCookie(
+        cookie(
+            'refresh_token',
+            '',
+            -1,
+            '/',
+            null,
+            app()->environment('production'),
+            true,
+            false,
+            'lax'
+        )
+    );
+}
+
+    public function refresh(Request $request)
+{
+    $refreshData = $this->authService->refresh(
+        $request->cookie('refresh_token')
+    );
+
+    $response = ApiResponse::success(
+    [
+        'access_token' => $refreshData['access_token'],
+        'token_type' => $refreshData['token_type'],
+        'expires_in' => $refreshData['expires_in'],
+    ],
+    'Token refreshed successfully.'
+);
+
+return $response->withCookie(
+    cookie(
+        'refresh_token',
+        $refreshData['refresh_token'],
+        14 * 24 * 60,
+        '/',
+        null,
+        app()->environment('production'),
+        true,
+        false,
+        'lax'
+    )
+);
+}
 }
