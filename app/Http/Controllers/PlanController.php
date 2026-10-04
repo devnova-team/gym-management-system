@@ -13,11 +13,11 @@ use Illuminate\Http\Request;
 class PlanController extends Controller
 {
 
-    protected $PlanService;
+    protected $planService;
 
-    public function __construct(PlanService $PlanService)
+    public function __construct(PlanService $planService)
     {
-        $this->PlanService = $PlanService;
+        $this->planService = $planService;
     }
 
 
@@ -26,10 +26,10 @@ class PlanController extends Controller
     {
         $gym_id = $request->user()->gym_id;
 
-        $Plans = $this->PlanService->getPlans($gym_id);
+        $plans = $this->planService->getPlans($gym_id);
 
         return ApiResponse::success([
-            'Plans' => PlanResource::collection($Plans)
+            'plans' => PlanResource::collection($plans)
         ], 'Plans retrieved successfully');
     }
 
@@ -41,10 +41,10 @@ class PlanController extends Controller
     {
         $gym_id = $request->user()->gym_id;
 
-        $Plan = $this->PlanService->getPlanById($gym_id, $id);
+        $plan = $this->planService->getPlanById($gym_id, $id);
 
         return ApiResponse::success([
-            'Plan' => new PlanResource($Plan)
+            'plan' => new PlanResource($plan)
         ], 'Plan retrieved successfully');
     }
 
@@ -60,10 +60,10 @@ class PlanController extends Controller
         $data = $request->validated();
 
 
-        $Plan = $this->PlanService->createPlan($gym_id, $data);
+        $plan = $this->planService->createPlan($gym_id, $data);
 
         return ApiResponse::success([
-            'Plan' => new PlanResource($Plan)
+            'plan' => new PlanResource($plan)
         ], 'Plan was created successfully');
     }
 
@@ -78,10 +78,10 @@ class PlanController extends Controller
         $data = $request->validated();
 
 
-        $Plan = $this->PlanService->updatePlan($gym_id, $id, $data);
+        $plan = $this->planService->updatePlan($gym_id, $id, $data);
 
         return ApiResponse::success([
-            'Plan' => new PlanResource($Plan)
+            'plan' => new PlanResource($plan)
         ], 'Plan updated successfully');
     }
 
@@ -92,7 +92,7 @@ class PlanController extends Controller
     {
         $gym_id = $request->user()->gym_id;
 
-        $this->PlanService->deletePlan($gym_id, $id);
+        $this->planService->deletePlan($gym_id, $id);
 
         return ApiResponse::success(null, 'Plan deleted successfully');
     }

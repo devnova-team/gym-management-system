@@ -28,4 +28,10 @@ class Member extends Model
     {
         return $this->belongsTo(Gym::class);
     }
+
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
 }
