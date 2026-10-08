@@ -38,6 +38,14 @@ class PlanRepository
     }
 
 
+            public function hasActiveSubscriptions(Plan $plan): bool
+        {
+            return $plan->subscriptions()
+                ->where('start_date', '<=', now()->toDateString())
+                ->where('end_date', '>=', now()->toDateString())
+                ->exists();
+        }
+
     public function delete(Plan $Plan)
     {
         return $Plan->delete();

@@ -70,19 +70,23 @@ class SubscriptionController extends Controller
 
 
     /**
-     * Update the specified resource in storage.
+     * Renew the specified resource in storage.
      */
-    public function update(RenewRequest $request, $id)
+    public function renew(RenewRequest $request)
     {
         $gym_id = $request->user()->gym_id;
         $data = $request->validated();
         $plan_id = $data['plan_id'];
 
 
-        $subscription = $this->subscriptionService->renewSubscription($gym_id, $id, $plan_id, $data);
-
+         $subscription = $this->subscriptionService->renewSubscription(
+        $gym_id,
+        $data['subscription_id'],
+        $data['plan_id'],
+        $data
+    );
         return ApiResponse::success([
             'subscription' => new SubscriptionResource($subscription)
-        ], 'Subscription updated successfully');
+        ], 'Subscription renewed successfully');
     }
 }

@@ -15,9 +15,10 @@ class RenewRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'subscription_id' => 'required|integer|exists:subscriptions,id',
             'plan_id' => 'required|integer|exists:plans,id',
             'payment_status' => 'required|string',
-            'payment_method' => 'required|string',
+            'payment_method' => 'required|in:cash',
         ];
     }
 }

@@ -32,7 +32,8 @@ Route::middleware('auth:api')->group(function () {
 
     // Plan routes
     Route::get('/plans', [PlanController::class, 'index']);
-    Route::post('/plans', [PlanController::class, 'store']);
+    Route::post('/plans', [PlanController::class, 'store'])
+    ->middleware('owner');
     Route::get('/plans/{id}', [PlanController::class, 'show']);
     Route::put('/plans/{id}', [PlanController::class, 'update']);
     Route::delete('/plans/{id}', [PlanController::class, 'destroy']);
@@ -42,5 +43,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/subscriptions', [SubscriptionController::class, 'index']);
     Route::get('/subscriptions/{id}', [SubscriptionController::class, 'show']);
     Route::post('/subscriptions', [SubscriptionController::class, 'store']);
-    Route::put('/subscriptions/{id}', [SubscriptionController::class, 'update']);
+    Route::post('/subscriptions/renew', [SubscriptionController::class, 'renew']);
 });

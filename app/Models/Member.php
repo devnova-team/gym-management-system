@@ -34,4 +34,9 @@ class Member extends Model
     {
         return $this->hasMany(Subscription::class);
     }
+
+    protected $casts = [
+    'join_date' => 'datetime',
+];
+
 }

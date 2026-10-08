@@ -18,7 +18,7 @@ class StoreRequest extends FormRequest
             'member_id' => 'required|integer|exists:members,id',
             'plan_id' => 'required|integer|exists:plans,id',
             'payment_status' => 'required|string',
-            'payment_method' => 'required|string'
+            'payment_method' => 'required|in:cash',
         ];
     }
 }

@@ -24,7 +24,10 @@ class LoginRequest extends FormRequest
     {
         return [
              'email' => ['nullable', 'email', 'required_without:phone'],
-            'phone' => ['nullable', 'string', 'required_without:email'],
+            'phone' => ['nullable',
+                 'regex:/^01[0125][0-9]{8}$/',
+                'required_without:email'
+            ],
             'password' => ['required', 'string'],
             
         ];

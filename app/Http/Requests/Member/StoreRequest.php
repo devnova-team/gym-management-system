@@ -16,7 +16,10 @@ class StoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:11',
+           'phone' => [
+            'required',
+            'regex:/^01[0125][0-9]{8}$/',
+                ],
             'email' => 'nullable|email|max:255',
             'photo_url' => 'nullable|image|mimes:jpg,jpeg,png',
             'join_date' => 'required|date',

@@ -10,7 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenBlacklistedException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
-use RuntimeException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -21,7 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+
+           $middleware->alias([
+        'owner' => \App\Http\Middleware\OwnerMiddleware::class,
+    ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 
@@ -36,6 +41,31 @@ return Application::configure(basePath: dirname(__DIR__))
                 );
             }
         });
+
+                    // Authentication errors
+            $exceptions->render(function (
+                AuthenticationException $e,
+                Request $request
+            ) {
+                if ($request->is('api/*')) {
+                    return ApiResponse::unauthorized(
+                        'Unauthenticated.'
+                    );
+                }
+            });
+
+            // Resource not found
+            $exceptions->render(function (
+                ModelNotFoundException $e,
+                Request $request
+            ) {
+                if ($request->is('api/*')) {
+                    return ApiResponse::error(
+                        'Resource not found.',
+                        404
+                    );
+                }
+            });
 
         // Rate limit errors
         $exceptions->render(function (
@@ -77,22 +107,28 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (
-            RuntimeException $e,
-            Request $request
-        ) {
-            if (
-                $request->is('api/*') &&
-                in_array($e->getMessage(), [
-                    'Refresh token is missing.',
-                    'Invalid or expired refresh token.',
-                ])
-            ) {
-                return ApiResponse::unauthorized(
-                    $e->getMessage()
-                );
-            }
-        });
+       $exceptions->render(function (
+    RuntimeException $e,
+    Request $request
+) {
+    if ($request->is('api/*')) {
+        if (in_array($e->getMessage(), [
+            'Refresh token is missing.',
+            'Invalid or expired refresh token.',
+        ])) {
+            return ApiResponse::unauthorized(
+                $e->getMessage()
+            );
+        }
+
+        if ($e->getMessage() === 'Cannot delete a plan with active subscriptions.') {
+            return ApiResponse::error(
+                $e->getMessage(),
+                422
+            );
+        }
+    }
+});
     })
 
     ->create();

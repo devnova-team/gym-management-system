@@ -14,7 +14,7 @@ class MemberResource extends JsonResource
             'name' => $this->name,
             'phone' => $this->phone,
             'email' => $this->email,
-            'photo_url' => $this->photo_url ? asset('storage/' . $this->photo) : null,
+            'photo_url' => $this->photo_url ? asset('storage/' . $this->photo_url) : null,
             'join_date' => $this->join_date?->format('Y-m-d H:i:s'),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
         ];

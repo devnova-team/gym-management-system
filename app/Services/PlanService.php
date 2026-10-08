@@ -44,11 +44,15 @@ class PlanService
         return $this->PlanRepository->update($Plan, $data);
     }
 
-
+ 
     public function deletePlan($gym_id, $id)
-    {
+{
+    $Plan = $this->PlanRepository->findByGymId($gym_id, $id);
 
-        $Plan = $this->PlanRepository->findByGymId($gym_id, $id);
-        return $this->PlanRepository->delete($Plan);
+    if ($this->PlanRepository->hasActiveSubscriptions($Plan)) {
+        throw new \RuntimeException('Cannot delete a plan with active subscriptions.');
     }
+
+    return $this->PlanRepository->delete($Plan);
+}
 }
