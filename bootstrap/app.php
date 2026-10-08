@@ -12,6 +12,7 @@ use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenBlacklistedException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
 
@@ -127,6 +128,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 422
             );
         }
+    }
+});
+
+    $exceptions->render(function (
+    NotFoundHttpException $e,
+    Request $request
+) {
+    if ($request->is('api/*')) {
+        return ApiResponse::error(
+            'Resource not found.',
+            404
+        );
     }
 });
     })
