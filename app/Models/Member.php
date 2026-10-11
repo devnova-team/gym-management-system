@@ -35,6 +35,12 @@ class Member extends Model
         return $this->hasMany(Subscription::class);
     }
 
+    
+public function attendance()
+{
+    return $this->hasMany(Attendance::class);
+}
+
     protected $casts = [
     'join_date' => 'datetime',
 ];
