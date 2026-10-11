@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\AttendanceController;
 
 
 Route::prefix('auth')->group(function () {
@@ -44,4 +45,17 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/subscriptions/{id}', [SubscriptionController::class, 'show']);
     Route::post('/subscriptions', [SubscriptionController::class, 'store']);
     Route::post('/subscriptions/renew', [SubscriptionController::class, 'renew']);
+});
+
+
+ // Attendance routes
+Route::middleware('auth:api')->group(function () {
+    Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn']);
+
+    Route::post('/attendance/{id}/check-out', [AttendanceController::class, 'checkOut'])
+        ->whereNumber('id');
+
+    Route::get('/attendance/today', [AttendanceController::class, 'today']);
+
+    Route::get('/attendance/currently-inside', [AttendanceController::class, 'currentlyInside']);
 });
