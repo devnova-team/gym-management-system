@@ -7,7 +7,8 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AttendanceController;
-
+use App\Http\Controllers\MessageTemplateController;
+use App\Http\Controllers\MemberSegmentationController;
 
 Route::prefix('auth')->group(function () {
 
@@ -22,6 +23,13 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/members', [MemberController::class, 'index']);
     Route::post('/members', [MemberController::class, 'store']);
+
+
+    Route::get(
+    '/members/segmented',
+    [MemberSegmentationController::class, 'index']
+)->middleware('role:owner,receptionist');
+
     Route::get('/members/{id}', [MemberController::class, 'show']);
     Route::put('/members/{id}', [MemberController::class, 'update']);
     Route::delete('/members/{id}', [MemberController::class, 'destroy']);
@@ -58,4 +66,23 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/attendance/today', [AttendanceController::class, 'today']);
 
     Route::get('/attendance/currently-inside', [AttendanceController::class, 'currentlyInside']);
+});
+
+
+// Message Template routes
+Route::middleware('auth:api')->group(function () {
+
+    // Get all message templates for the authenticated gym
+    Route::get('/message-templates', [
+        MessageTemplateController::class,
+        'index'
+    ]);
+
+    // Update a message template (Owner only)
+    Route::put('/message-templates', [
+        MessageTemplateController::class,
+        'update'
+    ])->middleware('owner');
+
+    
 });
