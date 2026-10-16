@@ -27,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
            $middleware->alias([
         'owner' => \App\Http\Middleware\OwnerMiddleware::class,
+        'role'  => \App\Http\Middleware\RoleMiddleware::class,
     ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
