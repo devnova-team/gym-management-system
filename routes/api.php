@@ -60,6 +60,9 @@ Route::middleware('auth:api')->group(function () {
 Route::middleware('auth:api')->group(function () {
     Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn']);
 
+      Route::post('/attendance/sync', [ AttendanceController::class,'sync']);
+
+
     Route::post('/attendance/{id}/check-out', [AttendanceController::class, 'checkOut'])
         ->whereNumber('id');
 
