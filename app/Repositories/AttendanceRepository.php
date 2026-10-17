@@ -3,7 +3,7 @@
 namespace App\Repositories;
 use App\Models\Attendance;
 use App\Models\Member;
-use Illuminate\Support\Facades\DB;
+
 
 
 class AttendanceRepository
@@ -49,7 +49,7 @@ class AttendanceRepository
       
      public function getToday(int $gymId)
     {
-        return Attendance::whereDate('attendance_date', today())
+        return Attendance::whereDate('attendance_date', now('Africa/Cairo')->toDateString())
             ->whereHas('member', function ($query) use ($gymId) {
                 $query->where('gym_id', $gymId);
             })
@@ -69,6 +69,64 @@ class AttendanceRepository
             ->paginate(15);
     }
 
+  
+public function findByLocalId(
+    int $gymId,
+    string $localId
+): ?Attendance {
+    return Attendance::query()
+        ->where('local_id', $localId)
+        ->whereHas('member', function ($query) use ($gymId) {
+            $query->where('gym_id', $gymId);
+        })
+        ->first();
+}
 
+
+// public function hasAttendanceAfter(
+//     int $memberId,
+//     \DateTimeInterface $checkInTime
+// ): bool {
+//     return Attendance::query()
+//         ->where('member_id', $memberId)
+//         ->where('check_in_time', '>=', $checkInTime)
+//         ->exists();
+// }
+
+
+public function hasAttendanceConflict(
+    int $memberId,
+    \DateTimeInterface $checkInTime
+): bool {
+    return Attendance::query()
+        ->where('member_id', $memberId)
+        ->where(function ($query) use ($checkInTime) {
+            $query
+                // A visit started at or after the offline check-in.
+                ->where('check_in_time', '>=', $checkInTime)
+
+                // Or a previous visit was still active at that time.
+                ->orWhere(function ($query) use ($checkInTime) {
+                    $query
+                        ->where('check_in_time', '<', $checkInTime)
+                        ->where(function ($query) use ($checkInTime) {
+                            $query
+                                ->whereNull('check_out_time')
+                                ->orWhere(
+                                    'check_out_time',
+                                    '>',
+                                    $checkInTime
+                                );
+                        });
+                });
+        })
+        ->exists();
+}
+
+
+public function localIdExists(string $localId): bool
+{
+    return Attendance::where('local_id', $localId)->exists();
+}
     
 }
