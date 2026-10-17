@@ -76,4 +76,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Shift::class, 'staff_id');
     }
+
+    public function attendances()
+    {
+        return $this->hasMany(StaffAttendance::class, 'staff_id');
+    }
 }

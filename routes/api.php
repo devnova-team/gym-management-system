@@ -9,6 +9,7 @@ use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\StaffAttendanceController;
 
 
 Route::prefix('auth')->group(function () {
@@ -57,6 +58,9 @@ Route::middleware('auth:api')->group(function () {
     // Shift routes
     Route::get('/shifts', [ShiftController::class, 'index']);
     Route::post('/shifts', [ShiftController::class, 'store']);
+
+    // Staff Attendance routes
+    Route::post('/staff/attendance', [StaffAttendanceController::class, 'store']);
 });
 
 
