@@ -26,7 +26,7 @@ class StaffController extends Controller
         $staff = $this->staffService->getStaff($gym_id);
 
         return ApiResponse::success([
-            'shifts' => StaffResource::collection($staff)
+            'staff' => StaffResource::collection($staff)
         ], 'Staff retrieved successfully');
     }
 

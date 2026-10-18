@@ -59,17 +59,19 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/subscriptions/renew', [SubscriptionController::class, 'renew']);
 
 
-    // Staff routes
-    Route::get('/staff', [StaffController::class, 'index']);
-    Route::post('/staff', [StaffController::class, 'store']);
+    // Staff and shifts routes
+    Route::middleware('role:owner,receptionist')->group(function () {
 
+        Route::get('/staff', [StaffController::class, 'index']);
+        Route::get('/shifts', [ShiftController::class, 'index']);
+    });
 
-    // Shift routes
-    Route::get('/shifts', [ShiftController::class, 'index']);
-    Route::post('/shifts', [ShiftController::class, 'store']);
+    Route::middleware('owner')->group(function () {
 
-    // Staff Attendance routes
-    Route::post('/staff/attendance', [StaffAttendanceController::class, 'store']);
+        Route::post('/staff', [StaffController::class, 'store']);
+        Route::post('/shifts', [ShiftController::class, 'store']);
+        Route::post('/staff/attendance', [StaffAttendanceController::class, 'store']);
+    });
 });
 
 

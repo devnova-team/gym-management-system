@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\ShiftRepository;
 use App\Repositories\StaffRepository;
+use Illuminate\Validation\ValidationException;
 
 
 class ShiftService
@@ -29,6 +30,15 @@ class ShiftService
     {
 
         $staff = $this->staffRepository->findByGymId($gym_id, $staff_id);
+
+        if ($this->shiftRepository->hasConflict($staff_id, $data)) {
+
+            throw ValidationException::withMessages([
+                'shift' => ['This staff member already has a shift that overlaps with the selected time.']
+            ]);
+        }
+
+
         $data['staff_id'] = $staff->id;
 
         $shift = $this->shiftRepository->create($data);

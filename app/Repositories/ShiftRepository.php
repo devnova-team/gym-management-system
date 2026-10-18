@@ -16,6 +16,14 @@ class ShiftRepository
     }
 
 
+    public function hasConflict(int $staff_id, array $data)
+    {
+        return Shift::where('staff_id', $staff_id)
+            ->whereDate('shift_date', $data['shift_date'])
+            ->where('start_time', '<', $data['end_time'])
+            ->where('end_time', '>', $data['start_time'])->exists();
+    }
+
     public function create(array $data)
     {
 

@@ -22,7 +22,7 @@ class StoreRequest extends FormRequest
             'phone' => 'required|string|unique:users,phone',
             'email' => 'nullable|email|unique:users,email',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:owner,receptionist,trainer',
+            'role' => 'required|in:receptionist,trainer',
         ];
     }
 }
