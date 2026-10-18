@@ -9,6 +9,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\MemberSegmentationController;
+use App\Http\Controllers\ExpenseController;
 
 Route::prefix('auth')->group(function () {
 
@@ -89,3 +90,10 @@ Route::middleware('auth:api')->group(function () {
 
     
 });
+
+// Expense routes
+Route::middleware('auth:api')->group(function () {
+    Route::get('/expenses', [ExpenseController::class, 'index']);
+    Route::post('/expenses', [ExpenseController::class, 'store']);
+    Route::get('/expenses/monthly-summary',[ExpenseController::class, 'monthlySummary']);
+}); 
