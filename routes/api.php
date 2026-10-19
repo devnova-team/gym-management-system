@@ -9,6 +9,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\MemberSegmentationController;
+use App\Http\Controllers\DashboardController;
 
 Route::prefix('auth')->group(function () {
 
@@ -87,5 +88,7 @@ Route::middleware('auth:api')->group(function () {
         'update'
     ])->middleware('owner');
 
-    
+     
+    Route::middleware(['auth:api', 'role:owner,receptionist'])
+    ->get('/dashboard/stats', [DashboardController::class, 'stats']);
 });

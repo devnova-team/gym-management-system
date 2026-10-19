@@ -6,7 +6,7 @@ use App\Helpers\ApiResponse;
 use App\Http\Requests\MessageTemplates\UpdateMessageTemplateRequest;
 use App\Http\Resources\MessageTemplateResource;
 use App\Services\MessageTemplateService;
-use Illuminate\Http\JsonResponse;
+
 
 use Illuminate\Http\Request;
 
