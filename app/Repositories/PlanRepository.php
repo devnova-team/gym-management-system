@@ -38,7 +38,7 @@ class PlanRepository
     }
 
 
-            public function hasActiveSubscriptions(Plan $plan): bool
+        public function hasActiveSubscriptions(Plan $plan): bool
         {
             return $plan->subscriptions()
                 ->where('start_date', '<=', now()->toDateString())
