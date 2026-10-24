@@ -5,11 +5,17 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PlanController;
+use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\StaffAttendanceController;
+
 use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\MemberSegmentationController;
+
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseController;
 
 Route::prefix('auth')->group(function () {
 
@@ -27,9 +33,9 @@ Route::middleware('auth:api')->group(function () {
 
 
     Route::get(
-    '/members/segmented',
-    [MemberSegmentationController::class, 'index']
-)->middleware('role:owner,receptionist');
+        '/members/segmented',
+        [MemberSegmentationController::class, 'index']
+    )->middleware('role:owner,receptionist');
 
     Route::get('/members/{id}', [MemberController::class, 'show']);
     Route::put('/members/{id}', [MemberController::class, 'update']);
@@ -43,7 +49,7 @@ Route::middleware('auth:api')->group(function () {
     // Plan routes
     Route::get('/plans', [PlanController::class, 'index']);
     Route::post('/plans', [PlanController::class, 'store'])
-    ->middleware('owner');
+        ->middleware('owner');
     Route::get('/plans/{id}', [PlanController::class, 'show']);
     Route::put('/plans/{id}', [PlanController::class, 'update']);
     Route::delete('/plans/{id}', [PlanController::class, 'destroy']);
@@ -54,14 +60,29 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/subscriptions/{id}', [SubscriptionController::class, 'show']);
     Route::post('/subscriptions', [SubscriptionController::class, 'store']);
     Route::post('/subscriptions/renew', [SubscriptionController::class, 'renew']);
+
+
+    // Staff and shifts routes
+    Route::middleware('role:owner,receptionist')->group(function () {
+
+        Route::get('/staff', [StaffController::class, 'index']);
+        Route::get('/shifts', [ShiftController::class, 'index']);
+    });
+
+    Route::middleware('owner')->group(function () {
+
+        Route::post('/staff', [StaffController::class, 'store']);
+        Route::post('/shifts', [ShiftController::class, 'store']);
+        Route::post('/staff/attendance', [StaffAttendanceController::class, 'store']);
+    });
 });
 
 
- // Attendance routes
+// Attendance routes
 Route::middleware('auth:api')->group(function () {
     Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn']);
 
-      Route::post('/attendance/sync', [ AttendanceController::class,'sync']);
+    Route::post('/attendance/sync', [AttendanceController::class, 'sync']);
 
 
     Route::post('/attendance/{id}/check-out', [AttendanceController::class, 'checkOut'])
@@ -87,8 +108,14 @@ Route::middleware('auth:api')->group(function () {
         MessageTemplateController::class,
         'update'
     ])->middleware('owner');
-
-     
-    Route::middleware(['auth:api', 'role:owner,receptionist'])
-    ->get('/dashboard/stats', [DashboardController::class, 'stats']);
+    
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats'])
+        ->middleware('role:owner,receptionist');
 });
+
+// Expense routes
+Route::middleware('auth:api')->group(function () {
+    Route::get('/expenses', [ExpenseController::class, 'index']);
+    Route::post('/expenses', [ExpenseController::class, 'store']);
+    Route::get('/expenses/monthly-summary',[ExpenseController::class, 'monthlySummary']);
+}); 

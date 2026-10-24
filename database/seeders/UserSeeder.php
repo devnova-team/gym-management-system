@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-          $gym = Gym::where('name', 'GMS Demo Gym')->first();
+        $gym = Gym::where('name', 'GMS Demo Gym')->first();
 
         if (!$gym) {
             $this->command->error(
