@@ -32,6 +32,11 @@ class Subscription extends Model
         return $this->belongsTo(Plan::class);
     }
 
+    public function attendances()
+{
+    return $this->hasMany(Attendance::class);
+}
+
     protected $casts = [
     'start_date' => 'datetime',
     'end_date' => 'datetime',

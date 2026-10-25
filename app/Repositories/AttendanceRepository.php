@@ -3,6 +3,7 @@
 namespace App\Repositories;
 use App\Models\Attendance;
 use App\Models\Member;
+use App\Models\Subscription;
 
 
 
@@ -83,18 +84,8 @@ public function findByLocalId(
 }
 
 
-// public function hasAttendanceAfter(
-//     int $memberId,
-//     \DateTimeInterface $checkInTime
-// ): bool {
-//     return Attendance::query()
-//         ->where('member_id', $memberId)
-//         ->where('check_in_time', '>=', $checkInTime)
-//         ->exists();
-// }
 
-
-public function hasAttendanceConflict(
+            public function hasAttendanceConflict(
     int $memberId,
     \DateTimeInterface $checkInTime
 ): bool {
@@ -102,31 +93,74 @@ public function hasAttendanceConflict(
         ->where('member_id', $memberId)
         ->where(function ($query) use ($checkInTime) {
             $query
-                // A visit started at or after the offline check-in.
                 ->where('check_in_time', '>=', $checkInTime)
-
-                // Or a previous visit was still active at that time.
-                ->orWhere(function ($query) use ($checkInTime) {
-                    $query
-                        ->where('check_in_time', '<', $checkInTime)
-                        ->where(function ($query) use ($checkInTime) {
-                            $query
-                                ->whereNull('check_out_time')
-                                ->orWhere(
-                                    'check_out_time',
-                                    '>',
-                                    $checkInTime
-                                );
-                        });
+                ->orWhere(function ($q) use ($checkInTime) {
+                    $q->where('check_in_time', '<', $checkInTime)
+                      ->where(function ($q) use ($checkInTime) {
+                          $q->whereNull('check_out_time')
+                            ->orWhere('check_out_time', '>', $checkInTime);
+                      });
                 });
         })
         ->exists();
 }
 
-
 public function localIdExists(string $localId): bool
 {
     return Attendance::where('local_id', $localId)->exists();
 }
-    
+   
+
+/**
+ * Get paid subscriptions valid on a specific date.
+ * Newer subscriptions have priority when periods overlap.
+ */
+public function getValidSubscriptions(
+    int $gymId,
+    int $memberId,
+    string $date
+) {
+    return Subscription::query()
+        ->where('member_id', $memberId)
+        ->where('payment_status', 'paid')
+        ->whereDate('start_date', '<=', $date)
+        ->whereDate('end_date', '>=', $date)
+        ->whereHas('member', function ($query) use ($gymId) {
+            $query->where('gym_id', $gymId);
+        })
+        ->whereHas('plan', function ($query) use ($gymId) {
+            $query->where('gym_id', $gymId);
+        })
+        ->with('plan')
+        ->orderByDesc('start_date')
+        ->orderByDesc('id')
+        ->get();
+}
+
+
+/**
+ * Count attendance records linked to a subscription.
+ */
+public function countUsedSessions(int $subscriptionId): int
+{
+    return Attendance::query()
+        ->where('subscription_id', $subscriptionId)
+        ->count();
+}
+
+
+/**
+ * Check whether a member already attended on this date.
+ */
+public function hasAttendanceOnDate(
+    int $memberId,
+    string $date
+): bool {
+    return Attendance::query()
+        ->where('member_id', $memberId)
+        ->whereDate('attendance_date', $date)
+        ->exists();
+}
+
+   
 }
