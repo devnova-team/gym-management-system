@@ -16,8 +16,17 @@ class StoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'type' => 'required|string|in:daily,3x_week,2x_week',
+             'type' => 'required|in:limited,unlimited',
             'duration_days' => 'required|integer|min:1',
+
+           'total_sessions' => [
+            'required_if:type,limited',
+            'prohibited_if:type,unlimited',
+            'nullable',
+            'integer',
+            'min:1',
+        ],
+
             'price' => 'required|numeric|min:0',
             'absence_threshold_days' => 'required|integer|min:0',
         ];
