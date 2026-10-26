@@ -14,7 +14,12 @@ class Gym extends Model
     ];
 
     public function expenses(): HasMany
-{
-    return $this->hasMany(Expense::class);
-}
+    {
+        return $this->hasMany(Expense::class);
+    }
+
+    public function equipment(): HasMany
+    {
+        return $this->hasMany(Equipment::class);
+    }
 }
