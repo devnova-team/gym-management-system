@@ -13,6 +13,7 @@ class Attendance extends Model
 
     protected $fillable = [
         'member_id',
+        'subscription_id',
         'check_in_time',
         'check_out_time',
         'attendance_date',
@@ -32,4 +33,9 @@ class Attendance extends Model
      {
         return $this->belongsTo(Member::class);
      }
+
+     public function subscription()
+{
+    return $this->belongsTo(Subscription::class);
+}
 }

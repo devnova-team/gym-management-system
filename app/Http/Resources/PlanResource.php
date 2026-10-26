@@ -14,6 +14,7 @@ class PlanResource extends JsonResource
             'name' => $this->name,
             'type' => $this->type,
             'duration_days' => $this->duration_days,
+            'total_sessions' => $this->total_sessions,
             'price' => $this->price,
             'absence_threshold_days' => $this->absence_threshold_days,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),

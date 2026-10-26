@@ -16,6 +16,7 @@ class Plan extends Model
         'name',
         'type',
         'duration_days',
+        'total_sessions',
         'price',
         'absence_threshold_days',
     ];
@@ -31,4 +32,14 @@ class Plan extends Model
     {
         return $this->hasMany(Subscription::class);
     }
+
+    protected function casts(): array
+{
+    return [
+        'duration_days' => 'integer',
+        'total_sessions' => 'integer',
+        'price' => 'decimal:2',
+        'absence_threshold_days' => 'integer',
+    ];
+}
 }

@@ -13,6 +13,8 @@ use App\Http\Controllers\StaffAttendanceController;
 
 use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\MemberSegmentationController;
+
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 
 Route::prefix('auth')->group(function () {
@@ -45,13 +47,14 @@ Route::middleware('auth:api')->group(function () {
 Route::middleware('auth:api')->group(function () {
 
     // Plan routes
-    Route::get('/plans', [PlanController::class, 'index']);
-    Route::post('/plans', [PlanController::class, 'store'])
-        ->middleware('owner');
-    Route::get('/plans/{id}', [PlanController::class, 'show']);
-    Route::put('/plans/{id}', [PlanController::class, 'update']);
-    Route::delete('/plans/{id}', [PlanController::class, 'destroy']);
+      Route::get('/plans', [PlanController::class, 'index']);
+      Route::get('/plans/{id}', [PlanController::class, 'show']);
 
+       Route::middleware('owner')->group(function () {
+        Route::post('/plans', [PlanController::class, 'store']);
+        Route::put('/plans/{id}', [PlanController::class, 'update']);
+        Route::delete('/plans/{id}', [PlanController::class, 'destroy']);
+    });
 
     // Subscription routes
     Route::get('/subscriptions', [SubscriptionController::class, 'index']);
@@ -106,6 +109,9 @@ Route::middleware('auth:api')->group(function () {
         MessageTemplateController::class,
         'update'
     ])->middleware('owner');
+
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats'])
+        ->middleware('role:owner,receptionist');
 });
 
 // Expense routes

@@ -31,6 +31,11 @@ class PlanService
     {
 
         $data['gym_id'] = $gym_id;
+
+        if ($data['type'] === 'unlimited') {
+        $data['total_sessions'] = null;
+    }
+
         return $this->PlanRepository->create($data);
     }
 
@@ -41,6 +46,11 @@ class PlanService
     {
 
         $Plan = $this->PlanRepository->findByGymId($gym_id, $id);
+
+        if (($data['type'] ?? null) === 'unlimited') {
+        $data['total_sessions'] = null;
+    }
+
         return $this->PlanRepository->update($Plan, $data);
     }
 

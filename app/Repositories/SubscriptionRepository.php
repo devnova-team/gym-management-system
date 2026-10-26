@@ -41,4 +41,30 @@ class SubscriptionRepository
 
         return $subscription->fresh(['member', 'plan']);
     }
+
+        public function getLatestMemberSubscription(int $gymId, int $memberId): ?Subscription {
+    return Subscription::query()
+        ->where('member_id', $memberId)
+        ->whereHas('member', function ($query) use ($gymId) {
+            $query->where('gym_id', $gymId);
+        })
+        ->with('plan')
+        ->orderByDesc('id')
+        ->first();
+}
+
+public function countUsedSessions(int $subscriptionId): int
+{
+    return \App\Models\Attendance::query()
+        ->where('subscription_id', $subscriptionId)
+        ->count();
+}
+
+public function findMemberForUpdate(int $gymId, int $memberId): \App\Models\Member
+{
+    return \App\Models\Member::query()
+        ->where('gym_id', $gymId)
+        ->lockForUpdate()
+        ->findOrFail($memberId);
+}
 }

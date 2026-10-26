@@ -21,6 +21,7 @@ class AttendanceResource extends JsonResource
         return [
             'id' => $this->id,
             'member_id' => $this->member_id,
+            'subscription_id' => $this->subscription_id,
             'check_in_time' => $this->check_in_time?->format('Y-m-d H:i:s'),
             'check_out_time' => $this->check_out_time?->format('Y-m-d H:i:s'),
             'attendance_date' => $this->attendance_date?->format('Y-m-d'),
