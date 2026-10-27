@@ -15,6 +15,9 @@ use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\MemberSegmentationController;
 use App\Http\Controllers\ExpenseController;
 
+use App\Http\Controllers\StoreProductController;
+use App\Http\Controllers\StoreSaleController;
+
 Route::prefix('auth')->group(function () {
 
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
@@ -114,3 +117,20 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/expenses', [ExpenseController::class, 'store']);
     Route::get('/expenses/monthly-summary',[ExpenseController::class, 'monthlySummary']);
 }); 
+
+// StoreProduct route 
+Route::middleware('auth:api')->prefix('store/products')->group(function () {
+        Route::get('/',[StoreProductController::class, 'index'])->middleware('role:owner,receptionist');
+        Route::post('/',[StoreProductController::class, 'store'])->middleware('role:owner,receptionist');
+        Route::get('/{id}',[StoreProductController::class, 'show'])->middleware('role:owner,receptionist');
+        Route::put('/{id}',[StoreProductController::class, 'update'])->middleware('role:owner,receptionist');
+        // Route::patch('/{id}',[StoreProductController::class, 'update']);
+        Route::delete('/{id}',[StoreProductController::class, 'destroy'])->middleware('role:owner');
+});
+
+// StoreSales route 
+Route::middleware('auth:api')->prefix('store/sales')->group(function () {
+    Route::get('/', [StoreSaleController::class,'index' ])->middleware('role:owner');
+    Route::post('/', [StoreSaleController::class,'store'])->middleware('role:owner,receptionist');
+});
+
