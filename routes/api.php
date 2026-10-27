@@ -10,6 +10,7 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\StaffAttendanceController;
+use App\Http\Controllers\EquipmentController;
 
 use App\Http\Controllers\MessageTemplateController;
 use App\Http\Controllers\MemberSegmentationController;
@@ -76,6 +77,14 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/shifts', [ShiftController::class, 'store']);
         Route::post('/staff/attendance', [StaffAttendanceController::class, 'store']);
     });
+
+    // Equipment routes
+
+    Route::middleware('owner')->group(function () {
+        Route::get('/equipment', [EquipmentController::class, 'index']);
+        Route::post('/equipment', [EquipmentController::class, 'store']);
+        Route::put('/equipment/{id}', [EquipmentController::class, 'update']);
+    });
 });
 
 
@@ -118,5 +127,5 @@ Route::middleware('auth:api')->group(function () {
 Route::middleware('auth:api')->group(function () {
     Route::get('/expenses', [ExpenseController::class, 'index']);
     Route::post('/expenses', [ExpenseController::class, 'store']);
-    Route::get('/expenses/monthly-summary',[ExpenseController::class, 'monthlySummary']);
-}); 
+    Route::get('/expenses/monthly-summary', [ExpenseController::class, 'monthlySummary']);
+});
