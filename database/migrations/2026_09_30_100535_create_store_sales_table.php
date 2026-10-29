@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('store_sales', function (Blueprint $table) {
             $table->id();
-            
              $table->foreignId('gym_id')
                 ->constrained('gyms')
                 ->restrictOnDelete();
@@ -22,7 +21,7 @@ return new class extends Migration
                 ->constrained('store_products')
                 ->restrictOnDelete();
 
-                  $table->unsignedInteger('quantity_sold');
+            $table->unsignedInteger('quantity_sold');
 
             $table->decimal('total_amount', 10, 2);
 

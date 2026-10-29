@@ -79,6 +79,12 @@ class SubscriptionService
                 ->toDateString(),
             'payment_status' => $data['payment_status'],
             'payment_method' => $data['payment_method'],
+            'amount_paid' => $data['payment_status'] === 'paid'
+        ? $plan->price
+        : null,
+    'paid_at' => $data['payment_status'] === 'paid'
+        ? now('UTC')
+        : null,
         ];
 
         return $this->subscriptionRepository
@@ -161,6 +167,13 @@ class SubscriptionService
                     ->toDateString(),
                 'payment_status' => $data['payment_status'],
                 'payment_method' => $data['payment_method'],
+                'amount_paid' => $data['payment_status'] === 'paid'
+                    ? $plan->price
+                    : null,
+
+                'paid_at' => $data['payment_status'] === 'paid'
+                    ? now('UTC')
+                    : null,
             ];
 
             return $this->subscriptionRepository

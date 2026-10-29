@@ -15,7 +15,7 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|string|max:255',
+            'name' => 'sometimes|required|string|max:255',
             'purchase_date' => 'nullable|date',
             'last_maintenance_date' => 'nullable|date',
             'next_maintenance_due' => 'nullable|date'
