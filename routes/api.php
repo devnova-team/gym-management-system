@@ -22,6 +22,7 @@ use App\Http\Controllers\StoreProductController;
 use App\Http\Controllers\StoreSaleController;
 
 use App\Http\Controllers\FinancialReportController;
+use App\Http\Controllers\AdminReminderController;
 
 Route::prefix('auth')->group(function () {
 
@@ -168,3 +169,10 @@ Route::middleware(['auth:api', 'role:owner'])->get(
     '/reports/financial-summary',
     [FinancialReportController::class, 'summary']
 );
+
+//AdminReminders
+
+Route::middleware(['auth:api', 'role:owner'])->group(function () {
+    Route::get('/reminders', [AdminReminderController::class, 'index']);
+    Route::post('/reminders', [AdminReminderController::class, 'store']);
+});
