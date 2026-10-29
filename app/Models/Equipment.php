@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Equipment extends Model
 {
@@ -39,7 +40,7 @@ class Equipment extends Model
             return null;
         }
 
-        $today = today();
+        $today = Carbon::today('Africa/Cairo');
 
         if ($this->next_maintenance_due->lt($today)) {
 

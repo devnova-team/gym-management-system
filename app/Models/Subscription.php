@@ -16,6 +16,8 @@ class Subscription extends Model
         'end_date',
         'payment_status',
         'payment_method',
+        'amount_paid',
+        'paid_at',
     ];
 
 
@@ -40,5 +42,7 @@ class Subscription extends Model
     protected $casts = [
     'start_date' => 'datetime',
     'end_date' => 'datetime',
+    'amount_paid' => 'decimal:2',
+    'paid_at' => 'datetime',
 ];
 }
